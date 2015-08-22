@@ -1,0 +1,92 @@
+<div class="content-row header">
+	<button type="button" id="menu-button" 
+			ng-class="{open: garageCtrl.menuOpen}" ng-click="garageCtrl.toggleMenuOpen()">
+		<i class="fa fa-bars"></i>
+	</button>
+	<a href="#">Vehicles</a>
+</div>
+
+<div class="content-row">
+
+	<div class="sidebar" ng-class="{open: garageCtrl.menuOpen}">
+
+		<div id="search-box">
+			<i class="fa fa-search"></i>
+			<input type="search" ng-model="garageCtrl.searchQuery" ng-change="garageCtrl.updateTable()"/>
+			<i class="fa fa-times" ng-show="garageCtrl.searchQuery.length" 
+				ng-click="garageCtrl.emptySearchQuery(); garageCtrl.updateTable()"></i>	
+		</div>
+
+		<div id="garage-levels" class="filter-list">
+			<p class="list-title">LEVELS</p>
+			<ul class="fa-ul" ng-repeat="level in garageCtrl.levelsRange">
+				<li ng-click="garageCtrl.updateTable('level', level)"
+					ng-class="{active: garageCtrl.isFilterActive('level', level)}">
+					<i class="fa-li fa fa-circle"></i> 
+					Level {{level}} 
+				 </li>
+			</ul>
+		</div>
+
+		<div id="vehicle-types" class="filter-list">
+			<p class="list-title">TYPE</p>
+			<ul class="fa-ul" ng-repeat="vehicleType in garageCtrl.vehicleTypes">
+				<li ng-click="garageCtrl.updateTable('type', vehicleType)"
+					ng-class="{active: garageCtrl.isFilterActive('type', vehicleType)}"> 
+					<i class="fa-li fa fa-circle"></i> 
+					{{garageCtrl.capitalize(vehicleType)}}
+				</li>
+			</ul>
+		</div>
+
+		<div>
+			<button type="button" id="simulation" ng-click="garageCtrl.runSimulation()" ng-show="garageCtrl.showSimulation">
+				<i class="fa fa-car"></i>
+				Run simulation
+			</button>
+		</div>
+
+	</div>
+
+	<div class="content">
+
+		<div id="pagination">
+			<div id="current-rows">
+				<span>{{garageCtrl.paginationFactory.getRowLowerLimitForPage()}}</span>
+				<span>{{garageCtrl.paginationFactory.getRowUpperLimitForPage()}}</span>
+			</div>
+			<div id="other-info">
+				/<span id="total-rows">{{garageCtrl.getTotalFilteredVehicles()}}</span>
+				<span id="vehicles-label">VEHICLES</span>
+			</div>
+			<div id="page-navigation">
+				<button type="button" id="previous_page" 
+					ng-click="garageCtrl.goToPage('previous')"
+					ng-disabled="garageCtrl.paginationFactory.isFirstPage()">
+					<i class="fa fa-angle-up fa-3x"></i>
+				</button>
+				<button type="button" id="next_page"
+					ng-click="garageCtrl.goToPage('next')"
+					ng-disabled="garageCtrl.paginationFactory.isLastPage()">
+					<i class="fa fa-angle-down fa-3x"></i>
+				</button>
+			</div>
+
+		</div>
+		
+		<table id="parking-vehicles">
+			<tr ng-repeat="row in garageCtrl.tableData">
+				<td class="row odd">{{row.licensePlate}}</td>
+				<td class="row even">Level {{row.level}}</td>
+				<td class="row odd">{{garageCtrl.capitalize(row.type)}}</td>
+				<td class="row even">Slot: {{row.slot}}</td>
+			</tr>
+		</table> 
+		
+	</div>
+
+</div>
+
+
+
+

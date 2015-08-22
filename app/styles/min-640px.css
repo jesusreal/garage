@@ -1,0 +1,35 @@
+.wrapper {
+	max-width: 960px;
+}
+
+.content {
+	width: 75%;
+	padding: 0% 10%;
+}
+
+.sidebar {
+	width: 25%;
+	height: auto;
+	overflow: auto;
+}
+
+.sidebar.open {
+	height: auto;
+	border-bottom: none;
+}
+
+#search-box {
+	padding: 5px 5%;
+}
+
+#search-box input {
+	padding: 0% 10%;
+}
+
+#menu-button {
+	cursor: default;
+}
+
+#menu-button.open {
+	color: black;
+}
