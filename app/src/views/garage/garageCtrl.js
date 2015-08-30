@@ -125,7 +125,7 @@ class GarageController {
 			{action: "leave", indexes: [2,6,9]}
 		];
 		let timeout = 0;
-		let timeBetweenVehiclesMove = 1000; //ms 
+		let timeBetweenVehiclesMove = 500; //ms 
 		this.vehiclesFactory.getAll().then( (vehicles) => {
 			simulationSteps.forEach( (simulationStep) => {
 				let vehiclesSelection = new Array();
@@ -147,68 +147,49 @@ class GarageController {
 	}
 
 	enterGarage (vehicle) {
-		this.parkingFactory.getFreeSpace().then(
-			(parkingSpace) => {
-				let parkingDetails = {
-					licensePlate: vehicle.licensePlate,
-					type: vehicle.type,
-					level: parkingSpace.level,
-					slot: parkingSpace.slot
-				};
-				this.parkingFactory.insertVehicle(parkingDetails).then(
-					() => {
-						this.parkingFactory.getAllVehicles().then( (parkingData) => {
-							this.parkingData = parkingData;
-							this.updateTable();
-							console.log('Vehicle entered parking: ', JSON.stringify(parkingDetails));
-							console.log('Occupancy: ', this.parkingData.length);
-							this.parkingFactory.deleteFreeSpace(parkingSpace).then(
-								() => {},
-								() => { 
-									console.error('Parking space could not be removed from free spaces'); 
-								}
-							);
-						});			
-					},
-					() => {
-						console.error("Vehicle could not enter to parking.");
-					}
-				);
-			},
-			() => { 
-				console.error("We are sorry, but the parking is currently full.");
-			}
-		);
+		this.parkingFactory.getFreeSpace()
+		.then( (parkingSpace) => {
+			let parkingDetails = {
+				licensePlate: vehicle.licensePlate,
+				type: vehicle.type,
+				level: parkingSpace.level,
+				slot: parkingSpace.slot
+			};
+			return this.parkingFactory.insertVehicle(parkingDetails)
+			.then( (parkingDetails) => {
+				console.log('Vehicle entered parking: ', JSON.stringify(parkingDetails));
+				return this.parkingFactory.deleteFreeSpace(parkingSpace);
+			});
+		})
+		.then( () => { return this.parkingFactory.getAllVehicles(); })
+		.then( (parkingData) => {
+			this.parkingData = parkingData;
+			this.updateTable();
+			console.log('Occupancy: ', this.parkingData.length);
+		})
+		.catch( (error) => console.error(error) );
 	}
 
 	leaveGarage (licensePlate) {
-		this.parkingFactory.getVehicle(licensePlate).then( 
-			(parkingDetails) => {
-				this.parkingFactory.deleteVehicle(licensePlate).then(
-					() => {
-						this.parkingFactory.getAllVehicles().then( (parkingData) => {
-							this.parkingData = parkingData;
-							this.updateTable();
-							console.log('Vehicle left parking: ', licensePlate);
-							console.log('Occupancy: ', this.parkingData.length);
-							this.parkingFactory.insertFreeSpace(parkingDetails.level, parkingDetails.slot).then(
-								() => {},
-								() => { 
-									console.error('Parking space could not be added to free spaces');
-								}
-							);
-						});
-					},
-					() => {
-						console.error('Vehicle could not leave the parking');
-					}
-				);
-			},
-			() => {
-				console.error('There is no vehicle in the garage with license plate ', licensePlate);
-			}
-		);	
+		this.parkingFactory.getVehicle(licensePlate)
+		.then( (parkingDetails) => {
+			return this.parkingFactory.deleteVehicle(licensePlate)
+			.then( () => { 
+				return this.parkingFactory.insertFreeSpace(parkingDetails.level, parkingDetails.slot);
+			});
+		})
+		.then( () => { 
+			console.log('Vehicle left parking: ', licensePlate);
+			return this.parkingFactory.getAllVehicles(); 
+		})
+		.then( (parkingData) => {
+			this.parkingData = parkingData;
+			this.updateTable();
+			console.log('Occupancy: ', this.parkingData.length);
+		})
+		.catch( (error) => console.error(error) );	
 	}
+
 
 }
 

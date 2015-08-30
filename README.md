@@ -1,7 +1,7 @@
 This application implements a simple parking garage application.
 
 Requirements:
-	- Node.js should be installed in your machine
+	- Node.js should be installed in your machinedddfd
 
 Instructions of use:
 	1 - On command window go to app root folder and type "npm install". 

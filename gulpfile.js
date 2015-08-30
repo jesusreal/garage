@@ -74,6 +74,7 @@ gulp.task('connect', function() {
  
 // Start the tasks
 gulp.task('build', ['buildJs', 'buildHtml', 'buildStyles']);
+gulp.task('reload', ['reloadJs', 'reloadHtml', 'reloadStyles']);
 gulp.task('default', ['watch'], function() {
-	runSequence('connect','build');
+	runSequence('connect','reload');
 });

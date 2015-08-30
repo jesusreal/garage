@@ -13,6 +13,18 @@ class ParkingService {
 		return deferred.promise;
 	}
 
+	getFreeSpace () {
+		let deferred = this.$q.defer();
+		setTimeout( () => {
+			if ( this.freeSpaces.length > 0 ) {
+				deferred.resolve(this.freeSpaces[0]);
+			} else {
+				deferred.reject(new Error ("We are sorry, but the parking is currently full."));
+			}
+		}, 100);
+		return deferred.promise;
+	}
+
 	getVehicle (licensePlate) {
 		let vehicle;
 		let deferred = this.$q.defer();
@@ -27,7 +39,23 @@ class ParkingService {
 			if ( vehicle !== undefined ) {
 				deferred.resolve(vehicle);
 			} else {
-				deferred.reject();
+				deferred.reject(new Error('There is no vehicle in the garage with license plate ', licensePlate));
+			}
+		}, 100);
+		return deferred.promise;
+	}
+
+	insertFreeSpace (level, slot) {
+		let deferred = this.$q.defer();
+		let totalFreeSpacesBeforeInsert = this.freeSpaces.length;
+		let totalFreeSpacesAfterInsert = this.freeSpaces.push({level:level, slot:slot});
+		setTimeout( () => {
+			let insertSuccessful = (totalFreeSpacesAfterInsert === totalFreeSpacesBeforeInsert+1);
+			if (insertSuccessful) {
+				console.log("ParkingService::insertFreeSpace. Total free spaces" , this.freeSpaces.length);
+				deferred.resolve();
+			} else {
+				deferred.reject(new Error('Parking space could not be added to free spaces'));
 			}
 		}, 100);
 		return deferred.promise;
@@ -40,14 +68,38 @@ class ParkingService {
 		setTimeout( () => {
 			let insertSuccessful = (totalVehiclesInGaraceAfterInsert === totalVehiclesInGarageBeforeInsert+1);
 			if (insertSuccessful) {
-				deferred.resolve();
+				deferred.resolve(parkingDetails);
 			} else {
-				deferred.reject();
+				deferred.reject(new Error("Vehicle could not enter to parking."));
 			}
 		}, 100);
 		return deferred.promise;
 	}
 	
+	deleteFreeSpace (parkingSpace) {
+		let deferred = this.$q.defer();
+		let result;
+		for (let i=0; i<this.freeSpaces.length; i++) {
+			let levelMatch = (this.freeSpaces[i].level === parkingSpace.level);
+			let slotMatch = (this.freeSpaces[i].slot === parkingSpace.slot);
+			if (levelMatch && slotMatch) {
+				result = this.freeSpaces.splice(i,1);
+				break;
+			}
+		}
+		setTimeout( () => {
+			let removeSuccessful = (result!==undefined && result.length===1 );
+			if (removeSuccessful) {
+				console.log("ParkingService::deleteFreeSpace. Total free spaces" , this.freeSpaces.length);
+				deferred.resolve();
+			} else {
+				deferred.reject(new Error('Parking space could not be removed from free spaces'));
+			}
+		}, 100);
+		return deferred.promise;
+
+	}
+
 	deleteVehicle (licensePlate) {
 		let deferred = this.$q.defer();
 		let result;
@@ -63,62 +115,10 @@ class ParkingService {
 			if (removeSuccessful) {
 				deferred.resolve();
 			} else {
-				deferred.reject();
+				deferred.reject(new Error('Vehicle could not leave the parking'));
 			}
 		}, 100);
 		return deferred.promise;
-	}
-
-	insertFreeSpace (level, slot) {
-		let deferred = this.$q.defer();
-		let totalFreeSpacesBeforeInsert = this.freeSpaces.length;
-		let totalFreeSpacesAfterInsert = this.freeSpaces.push({level:level, slot:slot});
-		setTimeout( () => {
-			let insertSuccessful = (totalFreeSpacesAfterInsert === totalFreeSpacesBeforeInsert+1);
-			if (insertSuccessful) {
-				console.log("ParkingService::insertFreeSpace. Total free spaces" , this.freeSpaces.length)
-				deferred.resolve();
-			} else {
-				deferred.reject();
-			}
-		}, 100);
-		return deferred.promise;
-	}
-
-	getFreeSpace () {
-		let deferred = this.$q.defer();
-		setTimeout( () => {
-			if ( this.freeSpaces.length > 0 ) {
-				deferred.resolve(this.freeSpaces[0]);
-			} else {
-				deferred.reject();
-			}
-		}, 100);
-		return deferred.promise;
-	}
-
-	deleteFreeSpace (parkingSpace) {
-		let deferred = this.$q.defer();
-		let result;
-		for (let i=0; i<this.freeSpaces.length; i++) {
-			let levelMatch = (this.freeSpaces[i].level === parkingSpace.level);
-			let slotMatch = (this.freeSpaces[i].slot === parkingSpace.slot);
-			if (levelMatch && slotMatch) {
-				result = this.freeSpaces.splice(i,1);
-				break;
-			}
-		}
-		setTimeout( () => {
-			let removeSuccessful = (result!==undefined && result.length===1 );
-			if (removeSuccessful) {
-				console.log("ParkingService::deleteFreeSpace. Total free spaces" , this.freeSpaces.length)
-				deferred.resolve();
-			} else {
-				deferred.reject();
-			}
-		}, 100);
-		return deferred.promise;
-
 	}
 
 	static factory (PARKING_DATA, $q) {

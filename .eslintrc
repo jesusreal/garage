@@ -33,6 +33,7 @@
 		"no-regex-spaces": [2],
 		"no-sparse-arrays": [2],
 		"no-unreachable": [2],
+		"semi": [2, "always"],
 
 
 		// Strict mode
